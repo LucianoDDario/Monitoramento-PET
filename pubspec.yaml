@@ -1,0 +1,23 @@
+name: projeto
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+environment:
+ sdk: ^3.9.2
+dependencies:
+ flutter:
+   sdk: flutter
+ cupertino_icons: ^1.0.8
+ flutter_lints: ^6.0.0
+dev_dependencies:
+ flutter_test:
+   sdk: flutter
+flutter:
+ uses-material-design: true
+ assets:
+   - assets/images/Dog-walker.png
+   - assets/images/Pets.png
+ fonts:
+   - family: IBMPlexSans
+     fonts:
+       - asset: assets/fonts/IBMPlexSans-VariableFont_wdth,wght.ttf
