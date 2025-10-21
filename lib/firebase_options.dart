@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'monitoramentopet-pic3.firebasestorage.app',
     iosBundleId: 'com.example.projeto',
   );
-
 }

@@ -9,34 +9,27 @@ class RecuperarSenha extends StatefulWidget {
   State<RecuperarSenha> createState() => _RecuperarSenha();
 }
 
-
-
-
 class _RecuperarSenha extends State<RecuperarSenha> {
-
   final TextEditingController _emailController = TextEditingController();
   String mensagemErro = '';
 
-
   @override
-  void dispose(){
+  void dispose() {
     _emailController.dispose();
 
     super.dispose();
   }
 
-  void recuperarSenha() async{
-    try{
+  void recuperarSenha() async {
+    try {
       await authService.value.mudarSenhaEsquecida(email: _emailController.text);
-      
-    }on FirebaseAuthException catch(e){
+    } on FirebaseAuthException catch (e) {
       setState(() {
         mensagemErro = e.message ?? 'Existe um erro';
       });
     }
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

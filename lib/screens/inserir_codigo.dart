@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 
 class InserirCodigo extends StatelessWidget {
-
   const InserirCodigo({super.key});
 
   @override
-
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFFD02670),
       body: Center(
@@ -20,12 +17,11 @@ class InserirCodigo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                       'assets/images/Pets.png',
+                      'assets/images/Pets.png',
                       width: 24,
                       height: 24,
                       errorBuilder: (context, error, stack) =>
@@ -87,7 +83,9 @@ class InserirCodigo extends StatelessWidget {
                           foregroundColor: const Color(0xFFD02670),
                           backgroundColor: Colors.white,
                           side: const BorderSide(
-                              color: Color(0xFFBDBDBD), width: 1),
+                            color: Color(0xFFBDBDBD),
+                            width: 1,
+                          ),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                           ),
@@ -139,4 +137,3 @@ class InserirCodigo extends StatelessWidget {
     );
   }
 }
- 

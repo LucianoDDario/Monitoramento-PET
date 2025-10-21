@@ -14,30 +14,32 @@ class AuthService {
   Future<UserCredential> login({
     required String email,
     required String senha,
-  }) async{
-    return await firebaseAuth.signInWithEmailAndPassword(email: email, password: senha);
+  }) async {
+    return await firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: senha,
+    );
   }
 
   Future<UserCredential> criarConta({
     required String email,
     required String senha,
-  }) async{
-    return await firebaseAuth.createUserWithEmailAndPassword(email: email, password: senha);
+  }) async {
+    return await firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: senha,
+    );
   }
 
-  Future<void> sair() async{
+  Future<void> sair() async {
     await firebaseAuth.signOut();
   }
 
-  Future<void> mudarSenhaEsquecida({
-    required String email,
-  }) async{
+  Future<void> mudarSenhaEsquecida({required String email}) async {
     await firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> mudarNome({
-    required String nome,
-  }) async{
+  Future<void> mudarNome({required String nome}) async {
     await currentUser!.updateDisplayName(nome);
   }
 
@@ -45,10 +47,12 @@ class AuthService {
     required String senhaAtual,
     required String novaSenha,
     required String email,
-  }) async{
-    AuthCredential credential =
-      EmailAuthProvider.credential(email: email, password: senhaAtual);
-      await currentUser!.reauthenticateWithCredential(credential);
-      await currentUser!.updatePassword(novaSenha);
+  }) async {
+    AuthCredential credential = EmailAuthProvider.credential(
+      email: email,
+      password: senhaAtual,
+    );
+    await currentUser!.reauthenticateWithCredential(credential);
+    await currentUser!.updatePassword(novaSenha);
   }
 }
