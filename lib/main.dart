@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
  routes: {
    '/carregamento': (_) => const TelaCarregamento(),
    '/login': (_) => const TelaLogin(),
-   '/recuperar_senha': (_) => const RecuperarSenha(), 
+   '/recuperar_senha': (_) => RecuperarSenha(), 
    '/inserir_codigo': (_) => const InserirCodigo(),
    '/nova_senha': (_) => const NovaSenha(),
    '/cadastro': (_) => Cadastro(),

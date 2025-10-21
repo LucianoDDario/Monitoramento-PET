@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:projeto/models/usuario.dart';
 import 'package:projeto/services/auth_service.dart';
+import 'package:projeto/services/banco_service.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
@@ -29,10 +31,21 @@ class _CadastroState extends State<Cadastro> {
   void registrar() async {
     try {
       if (_senhaController.text == _confirmarSenhaController.text) {
-        await authService.value.criarConta(
+        final credencialUsuario = await authService.value.criarConta(
           email: _emailController.text,
           senha: _senhaController.text,
         );
+        if (credencialUsuario.user != null) {
+          String uid = credencialUsuario.user!.uid;
+
+          await BancoService().criarUsuario(
+            Usuario(
+              uid: uid,
+              nome: _nomeController.text.trim(),
+              email: _emailController.text.trim(),
+            ),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
