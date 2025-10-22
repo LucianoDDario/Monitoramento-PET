@@ -4,13 +4,13 @@ import 'package:projeto/models/usuario.dart';
 import 'package:projeto/services/auth_service.dart';
 import 'package:projeto/services/banco_service.dart';
 
-class Cadastro extends StatefulWidget {
-  const Cadastro({super.key});
+class TelaCadastro extends StatefulWidget {
+  const TelaCadastro({super.key});
   @override
-  State<Cadastro> createState() => _CadastroState();
+  State<TelaCadastro> createState() => _TelaCadastroState();
 }
 
-class _CadastroState extends State<Cadastro> {
+class _TelaCadastroState extends State<TelaCadastro> {
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
@@ -28,30 +28,33 @@ class _CadastroState extends State<Cadastro> {
     super.dispose();
   }
 
-  void registrar() async {
-    try {
-      if (_senhaController.text == _confirmarSenhaController.text) {
-        final credencialUsuario = await authService.value.criarConta(
+  Future<bool> registrar() async {
+    if (_senhaController.text == _confirmarSenhaController.text) {
+      try {
+        final credencialUsuario = await authService.criarConta(
           email: _emailController.text,
           senha: _senhaController.text,
         );
         if (credencialUsuario.user != null) {
           String uid = credencialUsuario.user!.uid;
 
-          await BancoService().criarUsuario(
+          await bancoService.criarUsuario(
             Usuario(
               uid: uid,
               nome: _nomeController.text.trim(),
               email: _emailController.text.trim(),
             ),
           );
+          return true;
         }
+        return false;
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          mensagemErro = e.message ?? 'Existe um erro';
+        });
       }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        mensagemErro = e.message ?? 'Existe um erro';
-      });
     }
+    return false;
   }
 
   @override

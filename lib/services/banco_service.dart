@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:projeto/models/usuario.dart';
 
+final BancoService bancoService = BancoService();
+
 class BancoService {
   final FirebaseFirestore _banco = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String mensagemErro = '';
 
-  static final instance = BancoService();
+
 
   String? get _uid => _auth.currentUser?.uid;
 

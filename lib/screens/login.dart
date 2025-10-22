@@ -1,7 +1,51 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:projeto/services/auth_service.dart';
 
-class TelaLogin extends StatelessWidget {
+class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
+  @override
+  State<TelaLogin> createState() => _TelaLoginState();
+}
+
+class _TelaLoginState extends State<TelaLogin> {
+  TextEditingController controllerEmail = TextEditingController();
+  TextEditingController controllerSenha = TextEditingController();
+  String mensagemErro = '';
+
+  @override
+  void dispose() {
+    controllerEmail.dispose();
+    controllerSenha.dispose();
+    super.dispose();
+  }
+
+  void login() async {
+    try {
+      await authService.login(
+        email: controllerEmail.text,
+        senha: controllerSenha.text,
+      );
+      popPage();
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        if (e.code == 'invalid-email') {
+          mensagemErro = "O formato do e-mail é inválido.";
+        } else if (e.code == 'invalid-credential') {
+          mensagemErro = "E-mail ou senha estão incorretos";
+        } else if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+          mensagemErro = "E-mail ou senha estão incorretos.";
+        } else {
+          mensagemErro = e.message ?? "Existe um erro";
+        }
+      });
+    }
+  }
+
+  void popPage() {
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,6 +98,7 @@ class TelaLogin extends StatelessWidget {
                   width: 288,
                   height: 32,
                   child: TextField(
+                    controller: controllerEmail,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       hintText: 'Insira seu e-mail',
@@ -81,6 +126,7 @@ class TelaLogin extends StatelessWidget {
                   width: 288,
                   height: 32,
                   child: TextField(
+                    controller: controllerSenha,
                     obscureText: true,
                     decoration: const InputDecoration(
                       hintText: 'Insira sua senha',
@@ -97,13 +143,15 @@ class TelaLogin extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
+                const SizedBox(height: 5),
+                Text(mensagemErro, style: TextStyle(color: Colors.red)),
                 SizedBox(
                   width: 150,
                   height: 32,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      login();
+                    },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: const Color(0xFFD02670),

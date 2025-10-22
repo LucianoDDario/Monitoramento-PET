@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:projeto/auth_layout.dart';
 import 'firebase_options.dart';
 
 import 'package:flutter/material.dart';
-import 'screens/carregamento.dart';
 import 'screens/login.dart';
 import 'screens/recuperar_senha.dart';
 import 'screens/inserir_codigo.dart';
@@ -22,13 +22,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/carregamento',
+      home: AuthLayout(),
       routes: {
-        '/carregamento': (_) => const TelaCarregamento(),
         '/login': (_) => const TelaLogin(),
         '/recuperar_senha': (_) => RecuperarSenha(),
         '/inserir_codigo': (_) => const InserirCodigo(),
         '/nova_senha': (_) => const NovaSenha(),
-        '/cadastro': (_) => Cadastro(),
+        '/cadastro': (_) => TelaCadastro(),
       },
     );
   }

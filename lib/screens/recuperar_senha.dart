@@ -22,7 +22,7 @@ class _RecuperarSenha extends State<RecuperarSenha> {
 
   void recuperarSenha() async {
     try {
-      await authService.value.mudarSenhaEsquecida(email: _emailController.text);
+      await authService.mudarSenhaEsquecida(email: _emailController.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
         mensagemErro = e.message ?? 'Existe um erro';
