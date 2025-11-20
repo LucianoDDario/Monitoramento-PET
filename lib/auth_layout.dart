@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:projeto/screens/carregamento.dart';
-import 'package:projeto/screens/home.dart';
 import 'package:projeto/screens/login.dart';
 import 'package:projeto/services/auth_service.dart';
 
@@ -21,7 +20,7 @@ class AuthLayout extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               widget = TelaCarregamento();
             } else if (snapshot.hasData) {
-              widget = const Home();
+              widget = const TelaCarregamento();
             } else {
               widget = paginaNaoConectada ?? TelaLogin();
             }

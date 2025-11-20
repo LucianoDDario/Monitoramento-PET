@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:projeto/services/auth_service.dart';
+import 'telainicial.dart';
+
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
+
   @override
   State<TelaLogin> createState() => _TelaLoginState();
 }
@@ -22,11 +25,20 @@ class _TelaLoginState extends State<TelaLogin> {
 
   void login() async {
     try {
+      if (controllerEmail.text.isEmpty || controllerSenha.text.isEmpty) {
+        throw FirebaseAuthException(
+          code: 'Campos de e-mail e senha não podem estar vazios',
+        );
+      }
       await authService.login(
         email: controllerEmail.text,
         senha: controllerSenha.text,
       );
-      popPage();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const TelaInicial()),
+            (Route<dynamic> route) => false,
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
         if (e.code == 'invalid-email') {
@@ -35,15 +47,14 @@ class _TelaLoginState extends State<TelaLogin> {
           mensagemErro = "E-mail ou senha estão incorretos";
         } else if (e.code == 'user-not-found' || e.code == 'wrong-password') {
           mensagemErro = "E-mail ou senha estão incorretos.";
+        } else if (e.code ==
+            'Campos de e-mail e senha não podem estar vazios') {
+          mensagemErro = 'Campos de e-mail e senha não podem estar vazios';
         } else {
           mensagemErro = e.message ?? "Existe um erro";
         }
       });
     }
-  }
-
-  void popPage() {
-    Navigator.pop(context);
   }
 
   @override
@@ -53,7 +64,7 @@ class _TelaLoginState extends State<TelaLogin> {
       body: Center(
         child: Container(
           width: 320,
-          height: 434,
+          height: 447,
           decoration: const BoxDecoration(color: Colors.white),
           child: Padding(
             padding: const EdgeInsets.all(16),
