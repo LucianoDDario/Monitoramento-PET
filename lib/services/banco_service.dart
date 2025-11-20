@@ -1,0 +1,69 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:projeto/models/pet.dart';
+import 'package:projeto/models/usuario.dart';
+
+final BancoService bancoService = BancoService();
+
+class BancoService {
+  final FirebaseFirestore _banco = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String mensagemErro = '';
+
+  String? get _uid => _auth.currentUser?.uid;
+
+  Future<void> criarUsuario(Usuario usuario) async {
+    try {
+      await _banco.collection('usuarios').doc(usuario.uid).set(usuario.toMap());
+    } catch (e) {
+      print('Erro ao criar o usuário: $e');
+      rethrow;
+    }
+  }
+
+  Stream<Usuario?> streamUsuarioLogado() {
+    if (_uid == null) return Stream.value(null);
+
+    return _banco.collection('usuarios').doc(_uid).snapshots().map((doc) {
+      if (doc.exists && doc.data() != null) {
+        return Usuario.fromMap(doc.data()!);
+      }
+      return null;
+    });
+  }
+
+  Future<void> cadastrarPet(Pet pet) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .add(pet.toMap());
+    } catch (e) {
+      print('Erro ao criar o pet: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Pet>> getPetsDoUsuario(String uid) {
+    return _banco
+        .collection('usuarios')
+        .doc(uid)
+        .collection('pets')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Pet.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  Future<void> deletarPet(String idPet) async {
+    await _banco
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('pets')
+        .doc(idPet)
+        .delete();
+  }
+}
