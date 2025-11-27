@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:projeto/models/pet.dart';
 import 'package:projeto/models/usuario.dart';
+import 'package:projeto/models/vacina.dart';
 
 final BancoService bancoService = BancoService();
 
@@ -65,5 +66,77 @@ class BancoService {
         .collection('pets')
         .doc(idPet)
         .delete();
+  }
+
+  Future<void> editarPet(Pet pet) async {
+    await _banco
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('pets')
+        .doc(pet.id)
+        .update(pet.toMap());
+  }
+
+  Future<void> cadastrarVacina(String petId, Vacina vacina) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(petId)
+          .collection('vacinas')
+          .add(vacina.toMap());
+    } catch (e) {
+      print('Erro ao cadastrar vacina: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Vacina>> getVacinasDoPet(String petId) {
+    return _banco
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('pets')
+        .doc(petId)
+        .collection('vacinas')
+        .orderBy('dataAplicacao', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Vacina.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  Future<void> editarVacina(String petId, Vacina vacina) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(petId)
+          .collection('vacinas')
+          .doc(vacina.id)
+          .update(vacina.toMap());
+    } catch (e) {
+      print('Erro ao editar vacina: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deletarVacina(String petId, String vacinaId) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(petId)
+          .collection('vacinas')
+          .doc(vacinaId)
+          .delete();
+    } catch (e) {
+      print('Erro ao deletar vacina: $e');
+      rethrow;
+    }
   }
 }

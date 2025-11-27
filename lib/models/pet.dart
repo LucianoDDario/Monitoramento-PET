@@ -9,6 +9,7 @@ class Pet {
   final String especie;
   final String dataNascimento;
   final String castrado;
+  final List<String> galeriaUrls;
 
   Pet({
     this.id,
@@ -20,7 +21,8 @@ class Pet {
     required this.sexo,
     required this.especie,
     required this.dataNascimento,
-    required this.castrado
+    required this.castrado,
+    this.galeriaUrls = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -33,7 +35,8 @@ class Pet {
       'sexo': sexo,
       'especie': especie,
       'dataNascimento': dataNascimento,
-      'castrado': castrado
+      'castrado': castrado,
+      'galeriaUrls': galeriaUrls,
     };
   }
 
@@ -48,7 +51,8 @@ class Pet {
       sexo: map['sexo'] as String,
       especie: map['especie'] as String,
       dataNascimento: map['dataNascimento'] as String,
-      castrado: map['castrado'] as String
+      castrado: map['castrado'] as String,
+      galeriaUrls: List<String>.from(map['galeriaUrls'] ?? []),
     );
   }
 }

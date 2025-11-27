@@ -16,7 +16,6 @@ import 'screens/editar_pet.dart';
 import 'screens/tela_configuracao.dart';
 import 'screens/alterar_nome.dart';
 import 'screens/alterar_senha.dart';
-import 'screens/tela_galeria.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,12 +42,10 @@ class MyApp extends StatelessWidget {
         '/cadastro': (_) => const TelaCadastro(),
         '/telainicial': (_) => const TelaInicial(),
         '/adiciona_pet': (_) => const TelaCadastroPet(),
-        '/editar_pet': (context) => const TelaEditarPet(),
         'tela_configuracao': (_) => const TelaConfiguracao(),
         '/alterar_nome': (_) => const TelaAlterarNome(),
         '/alterar_senha': (_) => const TelaAlterarSenha(),
         '/alterar_email': (_) => const TelaAlterarEmail(),
-        '/tela_galeria': (_) => const TelaGaleria(),
       },
       onUnknownRoute: (_) =>
           MaterialPageRoute(builder: (_) => const TelaInicial()),
