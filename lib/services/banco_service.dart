@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:projeto/models/consulta.dart';
 import 'package:projeto/models/pet.dart';
 import 'package:projeto/models/usuario.dart';
 import 'package:projeto/models/vacina.dart';
@@ -52,29 +53,45 @@ class BancoService {
         .doc(uid)
         .collection('pets')
         .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => Pet.fromMap(doc.data(), doc.id))
-              .toList(),
-        );
+        .map((snapshot) {
+      final pets = <Pet>[];
+      for (final doc in snapshot.docs) {
+        try {
+          pets.add(Pet.fromMap(doc.data(), doc.id));
+        } catch (e) {
+          print('Erro ao fazer o parse do pet ${doc.id}: $e');
+        }
+      }
+      return pets;
+    });
   }
 
   Future<void> deletarPet(String idPet) async {
-    await _banco
-        .collection('usuarios')
-        .doc(_uid)
-        .collection('pets')
-        .doc(idPet)
-        .delete();
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(idPet)
+          .delete();
+    } catch (e) {
+      print('Erro ao deletar o pet: $e');
+      rethrow;
+    }
   }
 
   Future<void> editarPet(Pet pet) async {
-    await _banco
-        .collection('usuarios')
-        .doc(_uid)
-        .collection('pets')
-        .doc(pet.id)
-        .update(pet.toMap());
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(pet.id)
+          .update(pet.toMap());
+    } catch (e) {
+      print('Erro ao editar o pet: $e');
+      rethrow;
+    }
   }
 
   Future<void> cadastrarVacina(String petId, Vacina vacina) async {
@@ -93,6 +110,9 @@ class BancoService {
   }
 
   Stream<List<Vacina>> getVacinasDoPet(String petId) {
+    if (_uid == null) {
+      return Stream.value([]);
+    }
     return _banco
         .collection('usuarios')
         .doc(_uid)
@@ -101,11 +121,17 @@ class BancoService {
         .collection('vacinas')
         .orderBy('dataAplicacao', descending: true)
         .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => Vacina.fromMap(doc.data(), doc.id))
-              .toList(),
-        );
+        .map((snapshot) {
+      final vacinas = <Vacina>[];
+      for (final doc in snapshot.docs) {
+        try {
+          vacinas.add(Vacina.fromMap(doc.data(), doc.id));
+        } catch (e) {
+          print('Erro ao fazer o parse da vacina ${doc.id}: $e');
+        }
+      }
+      return vacinas;
+    });
   }
 
   Future<void> editarVacina(String petId, Vacina vacina) async {
@@ -136,6 +162,62 @@ class BancoService {
           .delete();
     } catch (e) {
       print('Erro ao deletar vacina: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> cadastrarConsulta(String petId, Consulta consulta) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(petId)
+          .collection('consultas')
+          .add(consulta.toMap());
+    } catch (e) {
+      print('Erro ao cadastrar consulta: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Consulta>> getConsultasDoPet(String petId) {
+    if (_uid == null) {
+      return Stream.value([]);
+    }
+    return _banco
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('pets')
+        .doc(petId)
+        .collection('consultas')
+        .orderBy('data', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      final consultas = <Consulta>[];
+      for (final doc in snapshot.docs) {
+        try {
+          consultas.add(Consulta.fromMap(doc.data(), doc.id));
+        } catch (e) {
+          print('Erro ao fazer o parse da consulta ${doc.id}: $e');
+        }
+      }
+      return consultas;
+    });
+  }
+
+  Future<void> deletarConsulta(String petId, String consultaId) async {
+    try {
+      await _banco
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('pets')
+          .doc(petId)
+          .collection('consultas')
+          .doc(consultaId)
+          .delete();
+    } catch (e) {
+      print('Erro ao deletar consulta: $e');
       rethrow;
     }
   }

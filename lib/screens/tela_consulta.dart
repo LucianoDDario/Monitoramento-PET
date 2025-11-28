@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:projeto/models/consulta.dart';
 import 'package:projeto/models/pet.dart';
+import 'package:projeto/services/banco_service.dart';
 import 'tela_pet.dart';
 import 'adiciona_consulta.dart';
 
@@ -119,42 +122,98 @@ class TelaConsulta extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Pet - ',
-                          style: TextStyle(
+                         Text(
+                          'Pet - ${pet.nome}',
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        const _CardConsulta(),
-                        const SizedBox(height: 20),
-
-                        Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                       TelaAdicionarConsulta(pet: pet),
+                        StreamBuilder<List<Consulta>>(
+                          stream: bancoService.getConsultasDoPet(pet.id!),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            if (snapshot.hasError) {
+                              return const Center(child: Text('Erro ao carregar as consultas.'));
+                            }
+                            final consultas = snapshot.data ?? [];
+                            if (consultas.isEmpty) {
+                              return Center(
+                                child: Column(
+                                  children: [
+                                    const Text('Nenhuma consulta cadastrada.'),
+                                    const SizedBox(height: 20),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                TelaAdicionarConsulta(pet: pet),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF4F2F7),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        padding: const EdgeInsets.all(18),
+                                        child: const Icon(
+                                          Icons.add,
+                                          size: 30,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF4F2F7),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.all(18),
-                              child: const Icon(
-                                Icons.add,
-                                size: 30,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
+                            }
+                            return Column(
+                              children:[
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: consultas.length,
+                                  itemBuilder: (context, index) {
+                                    final consulta = consultas[index];
+                                    return _CardConsulta(pet: pet, consulta: consulta);
+                                  },
+                                  separatorBuilder: (context, index) => const SizedBox(height: 20),
+                                ),
+                                const SizedBox(height: 20),
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              TelaAdicionarConsulta(pet: pet),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF4F2F7),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: const EdgeInsets.all(18),
+                                      child: const Icon(
+                                        Icons.add,
+                                        size: 30,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -170,10 +229,15 @@ class TelaConsulta extends StatelessWidget {
 }
 
 class _CardConsulta extends StatelessWidget {
-  const _CardConsulta();
+  final Pet pet;
+  final Consulta consulta;
+
+  const _CardConsulta({required this.pet, required this.consulta});
 
   @override
   Widget build(BuildContext context) {
+    final dataFormatada = DateFormat('dd/MM/yyyy').format(consulta.data);
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -183,22 +247,22 @@ class _CardConsulta extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CampoSimples(titulo: 'Descrição', valor: '-'),
+          _CampoSimples(titulo: 'Descrição', valor: consulta.descricao),
           const SizedBox(height: 8),
-          const _CampoSimples(titulo: 'Data', valor: '-'),
+          _CampoSimples(titulo: 'Data', valor: dataFormatada),
           const SizedBox(height: 8),
-          const _CampoSimples(titulo: 'Hora', valor: '-'),
+          _CampoSimples(titulo: 'Hora', valor: consulta.hora),
           const SizedBox(height: 8),
-          const _CampoSimples(
+          _CampoSimples(
             titulo: 'Nome (Clínica ou veterinário)',
-            valor: '-',
+            valor: consulta.nomeLocal,
           ),
           const SizedBox(height: 8),
-          const _CampoSimples(titulo: 'Cidade', valor: '-'),
+          _CampoSimples(titulo: 'Cidade', valor: consulta.cidade),
           const SizedBox(height: 8),
-          const _CampoSimples(titulo: 'Bairro', valor: '-'),
+          _CampoSimples(titulo: 'Bairro', valor: consulta.bairro),
           const SizedBox(height: 8),
-          const _CampoSimples(titulo: 'Rua', valor: '-'),
+          _CampoSimples(titulo: 'Rua', valor: consulta.rua),
           const SizedBox(height: 14),
           Align(
             alignment: Alignment.centerRight,
@@ -239,6 +303,7 @@ class _CardConsulta extends StatelessWidget {
                             elevation: 0,
                           ),
                           onPressed: () {
+                            bancoService.deletarConsulta(pet.id!, consulta.id!);
                             Navigator.pop(context);
                           },
                           child: const Text(

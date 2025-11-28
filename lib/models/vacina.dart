@@ -30,7 +30,7 @@ class Vacina {
       nome: map['nome'] ?? '',
       veterinario: map['veterinario'] ?? '',
       dataAplicacao: map['dataAplicacao'] as Timestamp,
-      proximaData: map['proximaData'] as Timestamp?,
+      proximaData: map['proximaData'] is Timestamp ? map['proximaData'] as Timestamp? : null,
     );
   }
 }

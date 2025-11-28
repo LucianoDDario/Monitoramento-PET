@@ -7,7 +7,7 @@ import 'package:projeto/services/banco_service.dart';
 import 'package:projeto/utils/no_animation_page_route.dart';
 import 'edita_vacina.dart';
 import 'adiciona_vacina.dart';
-import 'tela_pet.dart';
+
 
 class TelaVacina extends StatelessWidget {
   final Pet pet;

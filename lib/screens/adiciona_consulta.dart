@@ -1,6 +1,10 @@
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:projeto/models/consulta.dart';
 import 'package:projeto/models/pet.dart';
+import 'package:projeto/services/banco_service.dart';
 import 'tela_consulta.dart';
 
 class TelaAdicionarConsulta extends StatefulWidget {
@@ -13,20 +17,16 @@ class TelaAdicionarConsulta extends StatefulWidget {
 }
 
 class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
-  String? veterinarioSelecionado;
   DateTime? dataSelecionada;
   TimeOfDay? horaSelecionada;
-
-  final List<String> veterinarios = [
-    'Dr. João Silva',
-    'Dra. Maria Oliveira',
-    'Dr. Pedro Costa',
-    'Dra. Ana Paula',
-  ];
 
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
   final TextEditingController _horaController = TextEditingController();
+  final TextEditingController _nomeLocalController = TextEditingController();
+  final TextEditingController _cidadeController = TextEditingController();
+  final TextEditingController _bairroController = TextEditingController();
+  final TextEditingController _ruaController = TextEditingController();
 
   InputDecoration get _dec => const InputDecoration(
         isDense: true,
@@ -51,12 +51,17 @@ class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
       locale: const Locale('pt', 'BR'),
+      builder: (c, child) => Theme(
+        data: Theme.of(c).copyWith(
+          colorScheme: const ColorScheme.light(primary: TelaAdicionarConsulta.cor),
+        ),
+        child: child!,
+      ),
     );
     if (data != null) {
       setState(() {
         dataSelecionada = data;
-        _dataController.text =
-            "${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}";
+        _dataController.text = DateFormat('dd/MM/yyyy').format(data);
       });
     }
   }
@@ -73,6 +78,55 @@ class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
             "${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}";
       });
     }
+  }
+
+  void _salvarConsulta() async {
+    if (_descricaoController.text.isEmpty ||
+        dataSelecionada == null ||
+        horaSelecionada == null ||
+        _nomeLocalController.text.isEmpty ||
+        _cidadeController.text.isEmpty ||
+        _bairroController.text.isEmpty ||
+        _ruaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos!')),
+      );
+      return;
+    }
+
+    final novaConsulta = Consulta(
+      descricao: _descricaoController.text,
+      data: dataSelecionada!,
+      hora: _horaController.text,
+      nomeLocal: _nomeLocalController.text,
+      cidade: _cidadeController.text,
+      bairro: _bairroController.text,
+      rua: _ruaController.text,
+    );
+
+    await bancoService.cadastrarConsulta(widget.pet.id!, novaConsulta);
+
+    final Event event = Event(
+      title: 'Consulta - ${widget.pet.nome}',
+      description: _descricaoController.text,
+      location: '${_nomeLocalController.text}, ${_ruaController.text}, ${_bairroController.text}, ${_cidadeController.text}',
+      startDate: dataSelecionada!.add(Duration(hours: horaSelecionada!.hour, minutes: horaSelecionada!.minute)),
+      endDate: dataSelecionada!.add(Duration(hours: horaSelecionada!.hour + 1, minutes: horaSelecionada!.minute)),
+      allDay: false,
+    );
+
+    Add2Calendar.addEvent2Cal(event);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Consulta adicionada com sucesso!')),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TelaConsulta(pet: widget.pet),
+      ),
+    );
   }
 
   @override
@@ -130,9 +184,9 @@ class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Pet - Seu Pet',
-                      style: TextStyle(
+                    Text(
+                      'Pet - ${widget.pet.nome}',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -168,22 +222,32 @@ class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _tituloCampo('Veterinário'),
-                    DropdownButtonFormField<String>(
-                      value: veterinarioSelecionado,
-                      items: veterinarios.map((v) {
-                        return DropdownMenuItem(
-                          value: v,
-                          child: Text(v),
-                        );
-                      }).toList(),
-                      onChanged: (valor) {
-                        setState(() {
-                          veterinarioSelecionado = valor;
-                        });
-                      },
+                    _tituloCampo('Nome (Clínica ou veterinário)'),
+                    TextField(
+                      controller: _nomeLocalController,
                       decoration:
-                          _dec.copyWith(hintText: 'Selecione o veterinário'),
+                          _dec.copyWith(hintText: 'Ex: Clínica Vet Top'),
+                    ),
+                    const SizedBox(height: 12),
+                    _tituloCampo('Cidade'),
+                    TextField(
+                      controller: _cidadeController,
+                      decoration:
+                          _dec.copyWith(hintText: 'Ex: São Paulo'),
+                    ),
+                     const SizedBox(height: 12),
+                    _tituloCampo('Bairro'),
+                    TextField(
+                      controller: _bairroController,
+                      decoration:
+                          _dec.copyWith(hintText: 'Ex: Centro'),
+                    ),
+                     const SizedBox(height: 12),
+                    _tituloCampo('Rua'),
+                    TextField(
+                      controller: _ruaController,
+                      decoration:
+                          _dec.copyWith(hintText: 'Ex: Rua das Flores, 123'),
                     ),
                     const SizedBox(height: 22),
                     Row(
@@ -216,14 +280,7 @@ class _TelaAdicionarConsultaState extends State<TelaAdicionarConsulta> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TelaConsulta(pet: widget.pet),
-                                ),
-                              );
-                            },
+                            onPressed: _salvarConsulta,
                             icon: const Icon(
                               Icons.save,
                               size: 20,

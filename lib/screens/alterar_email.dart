@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:projeto/utils/no_animation_page_route.dart';
-import 'tela_configuracao.dart';
+
 
 class TelaAlterarEmail extends StatefulWidget {
   const TelaAlterarEmail({super.key});
